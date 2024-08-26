@@ -1,3 +1,10 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Mon Aug 26 03:09:31 2024
+
+@author: orhan
+"""
+
 import tensorflow as tf
 
 if tf.config.list_physical_devices('GPU'):
@@ -177,7 +184,7 @@ print(f"F1 Skoru: {f1}")
 
 
 
-#OpenCV fotograf ile test etme
+#OpenCV istediğimiz fotograf ile test etme
 
 import cv2
 from tensorflow.keras.preprocessing.image import img_to_array
@@ -185,6 +192,54 @@ import os
 import random
 
 folder_path = 'test'
+class_labels = list(training_set.class_indices.keys())
+# Klasördeki tüm dosyaların listesini al
+file_group_list = os.listdir(folder_path) #Hangi teror orgutune mensup
+
+random_file_group = random.choice(file_group_list) #Rastgele teror orgutu sec
+print(f'Real Conclusion: {random_file_group}')
+
+random_file_group_path = os.path.join(folder_path, random_file_group) #Secilen teror orgutunun yolu
+
+file_list = os.listdir(random_file_group_path) #Fotograflarin listesi
+
+random_file = "terorist.png"#Rastgele fotograf sec
+
+random_file_path = os.path.join(random_file_group_path, random_file)#Tam dosya yolu
+
+cap = cv2.imread(random_file_path)
+resized_frame = cv2.resize(cap,(128,128))
+
+img_array = img_to_array(resized_frame) / 255.0
+img_array = np.expand_dims(img_array, axis = 0) #batch icin ekstra boyut ekleme
+
+predictions_img = loaded_model.predict(img_array)
+print(f'Oranlar{predictions_img}')
+
+class_idx = np.argmax(predictions_img[0])
+class_name = class_labels[class_idx]
+print(f'Predict Conclusion: {class_name}')
+
+img = cv2.putText(cap, f"Predictions: {class_name}", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv2.LINE_AA)
+
+cv2.imshow('Test Image', cap)
+
+
+cv2.waitKey(0)
+
+cv2.destroyAllWindows()
+
+
+
+
+#OpenCV fotograf ile test etme
+
+import cv2
+from tensorflow.keras.preprocessing.image import img_to_array
+import os 
+import random
+
+folder_path = 'pkkfeto'
 class_labels = list(training_set.class_indices.keys())
 # Klasördeki tüm dosyaların listesini al
 file_group_list = os.listdir(folder_path) #Hangi teror orgutune mensup
@@ -213,74 +268,9 @@ class_idx = np.argmax(predictions_img[0])
 class_name = class_labels[class_idx]
 print(f'Predict Conclusion: {class_name}')
 
-img = cv2.putText(cap, f"Predictions: {class_name}", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv2.LINE_AA)
-
 cv2.imshow('Test Image', cap)
 
 
 cv2.waitKey(0)
 
 cv2.destroyAllWindows()
-
-
-
-"""
-###########################################
-#OpenCV
-#Ekrani Goruntusu
-import cv2
-import numpy as np
-import pyautogui
-from tensorflow.keras.preprocessing.image import img_to_array
-
-region = (0, 0, 1440, 960) #Ekran genisligi icin verilmis kod.
-
-font = cv2.FONT_HERSHEY_SIMPLEX
-
-class_labels = list(training_set.class_indices.keys())
-
-while True:
-    
-    #Erkan Goruntusu
-    img = pyautogui.screenshot(region=region)
-
-    #OpenCV formatina donusturmek
-    frame = np.array(img)
-    frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-    
-    #Kareyi 64x64 ayarliyoruz
-    resized_frame = cv2.resize(frame,(128,128))
-    
-    #Goruntuyu model girisi icin hazirlamak
-    img_array = img_to_array(resized_frame) / 255.0
-    img_array = np.expand_dims(img_array, axis = 0)
-    
-    #Model ile tahmin
-    predictions_cv2 = loaded_model.predict(img_array)
-    class_idx = np.argmax(predictions_cv2[0])
-    print(f'predictions {predictions_cv2}')
-    print(f'class pred {class_idx}')
-
-    
-    #Sinif isimlerini al
-    class_name = class_labels[class_idx]
-    
-    #Tahmini ekranda goster
-    cv2.putText(frame,f'Class:{class_name}',(10,30),font,1,(0,255,0),2,cv2.LINE_AA)
-    
-    #Ekrani goster
-    cv2.imshow('Screen',frame)
-    
-    #q tusuna basinca biter
-    if cv2.waitKey(1) & 0xff == ord('q'):
-        break
-
-
-#Pencereleri ucurur!!
-cv2.destroyAllWindows()
-
-
-
-"""
-
-
